@@ -1,7 +1,7 @@
 mod huffman;
-use std::{collections::BTreeMap, env, fs::read_to_string, io::Error, path::Path};
 
 use huffman::HuffTree;
+use std::{collections::BTreeMap, env, fs::read_to_string, io::Error, path::Path};
 
 #[derive(Debug)]
 pub struct Compressor {
@@ -30,7 +30,8 @@ impl Compressor {
 
     pub fn compress(&mut self) {
         let tree = self.create_tree();
-
+        let map = tree.generate_prefix_map();
+        dbg!(map);
         ()
     }
 

@@ -20,7 +20,6 @@ impl HuffNode {
     pub fn get_weight(&self) -> u32 {
         self.weight
     }
-
     pub fn new_internal(left_node: HuffNode, right_node: HuffNode) -> HuffNode {
         HuffNode {
             char: None,
@@ -47,13 +46,40 @@ impl HuffTree {
             Err(index) => self.tree.insert(index, node),
         }
     }
-
-    fn format(&mut self) {
+    fn generate_tree(&mut self) {
         while !(self.tree.len() == 1) {
             let left_node = self.tree.remove(0);
             let right_node = self.tree.remove(0);
             self.add(HuffNode::new_internal(left_node, right_node));
         }
+    }
+
+    pub fn generate_prefix_map(&self) -> Vec<(String, char)> {
+        let map: &mut Vec<(String, char)> = &mut Vec::new();
+        self.prefix_node_iterator(self.tree[0].left_node.as_ref(), map, "0".to_string());
+        self.prefix_node_iterator(self.tree[0].right_node.as_ref(), map, "1".to_string());
+
+        map.to_owned()
+    }
+
+    fn prefix_node_iterator(
+        &self,
+        node: Option<&Box<HuffNode>>,
+        map: &mut Vec<(String, char)>,
+        prefix: String,
+    ) {
+        if node.is_none() {
+            return;
+        }
+
+        let unwraped_node = node.as_ref().unwrap();
+        if unwraped_node.char.is_none() {
+            self.prefix_node_iterator(unwraped_node.left_node.as_ref(), map, prefix.clone() + "0");
+            self.prefix_node_iterator(unwraped_node.right_node.as_ref(), map, prefix.clone() + "1");
+            return;
+        }
+
+        map.push((prefix, unwraped_node.char.unwrap()));
     }
 }
 
@@ -63,7 +89,7 @@ impl From<BTreeMap<char, u32>> for HuffTree {
         for (c, w) in map {
             list.add(HuffNode::new(c, w));
         }
-        list.format();
+        list.generate_tree();
 
         list
     }
